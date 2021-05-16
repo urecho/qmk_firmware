@@ -1,12 +1,8 @@
-make kyria/rev1:urecho:dfu
+#!/bin/bash -ex 
 
-#make kyria/rev1:urecho && \
-#  bin/qmk flash -kb kyria -km urecho -bl dfu
+make splitkb/kyria/rev1:urecho:dfu
+
+# make splitkb/kyria/rev1:urecho:avrdude
 
 #  bin/qmk flash -kb kyria -km urecho -bl avrdude
-
-
-#  dfu-programmer atmega32u4 erase && \
-#  dfu-programmer atmega32u4 flash ./kyria_rev1_urecho.hex && \
-#  dfu-programmer atmega32u4 reset
 
