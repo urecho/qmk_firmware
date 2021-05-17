@@ -43,7 +43,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
 /* Qwerty
  * ,-------------------------------------------------------------------------------------------.
- * | Tab       |   Q  |   W  |   E  |   R  |   T  |   Y  |   U  |   I  |   O  |   P  | Bksp    |
+ * | Tab       |   Q  |   W  |   E  |   R  |   T  |   Y  |   U  |   I  |   O  |   P  |Bksp     |
  * |-----------+------+------+------+------+-------------+------+------+------+------+---------|
  * | Ctrl(Esc) |   A  |   S  |   D  |   F  |   G  |   H  |   J  |   K  |   L  |   ;  |Enter    |
  * |-----------+------+------+------+------+------|------+------+------+------+------+---------|
@@ -53,10 +53,10 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  * `-------------------------------------------------------------------------------------------'
  */
 [_QWERTY] = {
-  {KC_TAB,        KC_Q,    KC_W,    KC_E,    KC_R,    KC_T,    KC_Y,    KC_U,    KC_I,    KC_O,    KC_P,    KC_BSPC               },
+  {LCAG_T(KC_TAB),KC_Q,    KC_W,    KC_E,    KC_R,    KC_T,    KC_Y,    KC_U,    KC_I,    KC_O,    KC_P,    KC_BSPC               },
   {CTL_T(KC_ESC), KC_A,    KC_S,    KC_D,    KC_F,    KC_G,    KC_H,    KC_J,    KC_K,    KC_L,    KC_SCLN, KC_ENT                },
   {KC_LSFT,       KC_Z,    KC_X,    KC_C,    KC_V,    KC_B,    KC_N,    KC_M,    KC_COMM, KC_DOT,  KC_SLSH, MT(MOD_RSFT, KC_QUOT) },
-  {LCAG(KC_NO),   KC_LCTL, KC_LALT, KC_LGUI, LOWER,   KC_SPC,  KC_SPC,  RAISE,   KC_RGUI, KC_RALT, KC_RCTL, XXXXXXX               }
+  {HYPR_T(KC_NO), KC_LCTL, KC_LALT, KC_LGUI, LOWER,   KC_SPC,  KC_SPC,  RAISE,   KC_RGUI, KC_RALT, KC_RCTL, XXXXXXX               }
 },
 
 /* Raise
@@ -84,7 +84,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  * |      |  F1  |  F2  |  F3  |  F4  |  F5  | Left| Down |  Up  |Right |      |      |
  * |------+------+------+------+------+------|-----+------+------+------+------+------|
  * |      |  F6  |  F7  |  F8  |  F9  |  F10 | F11 | F12  |      |      |      |      |
- * |------+------+------+------+------+------+-----+------+------+------+------+------|
+ * |------+------+------+------+------+------+-----+------+------+------+------+- -----|
  * |      |      |      |      |      |            |      |      |      |      |      |
  * `----------------------------------------------------------------------------------'
  */
@@ -109,7 +109,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 [_MOUSE] = {
   { _______, KC_WH_L, KC_MS_U, KC_WH_R, KC_WH_U, XXXXXXX, KC_NUMLOCK    , KC_KP_7, KC_KP_8, KC_KP_9  , KC_KP_EQUAL, _______     },
   { _______, KC_MS_L, KC_MS_D, KC_MS_R, KC_WH_D, XXXXXXX, KC_KP_SLASH   , KC_KP_4, KC_KP_5, KC_KP_6  , KC_KP_MINUS, KC_KP_ENTER },
-  { _______, KC_BTN5, KC_BTN4, KC_BTN3, KC_BTN2, KC_BTN1, KC_KP_ASTERISK, KC_KP_1, KC_KP_2, KC_KP_3  , KC_KP_PLUS , _______     },
+  { _______, KC_BTN4, KC_BTN3, KC_BTN2, KC_BTN1, XXXXXXX, KC_KP_ASTERISK, KC_KP_1, KC_KP_2, KC_KP_3  , KC_KP_PLUS , _______     },
   { _______, _______, _______, _______, _______, _______, _______       , _______, KC_KP_0, KC_KP_DOT, KC_KP_COMMA, _______     }
 },
 
@@ -125,9 +125,9 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  * `-----------------------------------------------------------------------------------'
  */
 [_ADJUST] = {
-  {_______, KC_WH_L, KC_MS_U, KC_WH_R, KC_WH_U, _______, _______, QWERTY , MOUSE  , BACKLIT, RESET  , _______},
-  {_______, KC_MS_L, KC_MS_D, KC_MS_R, KC_WH_D, _______, _______, _______, _______, _______, _______, _______},
-  {_______, KC_BTN4, KC_BTN3, KC_BTN2, KC_BTN1, _______, MU_MOD , AU_ON  , AU_OFF , MU_ON  , MU_OFF , _______},
+  {_______, _______, _______, _______, _______, _______, _______, QWERTY , MOUSE  , BACKLIT, RESET  , _______},
+  {_______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______},
+  {_______, KC_MUTE, KC_VOLD, KC_VOLU, KC_MPLY, KC_MNXT, MU_MOD , AU_ON  , AU_OFF , MU_ON  , MU_OFF , _______},
   {_______, _______, _______, _______, _______, _______, _______, _______, KC_MNXT, KC_VOLD, KC_VOLU, KC_MPLY}
 }
  
