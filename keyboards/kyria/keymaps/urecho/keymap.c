@@ -26,6 +26,9 @@ enum layers {
     _ADJUST
 };
 
+bool is_alt_tab_active = false;
+uint16_t alt_tab_timer = 0;
+
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 /*
  * Base Layer: QWERTY
@@ -327,23 +330,104 @@ void oled_task_user(void) {
 }
 #endif
 
+
+
 #ifdef ENCODER_ENABLE
-void encoder_update_user(uint8_t index, bool clockwise) {
-    if (index == 0) {
-        // Volume control
-        if (clockwise) {
-            tap_code(KC_VOLU);
-        } else {
-            tap_code(KC_VOLD);
-        }
+
+void encoder_alt_tab(bool clockwise) {
+  if (!is_alt_tab_active) {
+    is_alt_tab_active = true;
+    register_code(KC_LGUI);
+  }
+
+	if (clockwise) {
+		alt_tab_timer = timer_read();
+		tap_code16(KC_TAB);
+	} else {
+		alt_tab_timer = timer_read();
+		tap_code16(S(KC_TAB));
+	}
+}
+
+void matrix_scan_user(void) {
+  if (is_alt_tab_active) {
+    if (timer_elapsed(alt_tab_timer) > 1250) {
+      unregister_code(KC_LGUI);
+      is_alt_tab_active = false;
     }
-    else if (index == 1) {
-        // Page up/Page down
-        if (clockwise) {
-            tap_code(KC_PGDN);
-        } else {
-            tap_code(KC_PGUP);
-        }
+  }
+}
+
+// Mouse scroll
+void encoder_mouse_scroll(bool clockwise) {
+    // Volume control
+    if (clockwise) {
+        tap_code(KC_MS_WH_UP);
+    } else {
+        tap_code(KC_MS_WH_DOWN);
     }
 }
+
+// Volume control
+void encoder_volume_control(bool clockwise) {
+    if (clockwise) {
+        tap_code(KC_VOLU);
+    } else {
+        tap_code(KC_VOLD);
+    }
+}
+
+// left/right
+void encoder_left_right(bool clockwise) {
+    if (clockwise) {
+        tap_code(KC_RGHT);
+    } else {
+        tap_code(KC_LEFT);
+    }
+}
+
+// page up/down
+void encoder_page_up_down(bool clockwise) {
+    if (clockwise) {
+        tap_code(KC_PGDN);
+    } else {
+        tap_code(KC_PGUP);
+    }
+}
+
+
+void encoder_update_user(uint8_t index, bool clockwise) {
+    if (index == 0) {
+				switch (get_highest_layer(layer_state)) {
+						case _QWERTY:
+								encoder_mouse_scroll(clockwise);
+								break;
+						case _LOWER:
+								break;
+						case _RAISE:
+								encoder_volume_control(clockwise);
+								break;
+						case _ADJUST:
+								break;
+						default:
+				}
+    }
+    else if (index == 1) {
+				switch (get_highest_layer(layer_state)) {
+						case _QWERTY:
+						    encoder_left_right(clockwise);
+								break;
+						case _LOWER:
+                encoder_alt_tab(clockwise);
+								break;
+						case _RAISE:
+								break;
+						case _ADJUST:
+								break;
+						default:
+				}
+    }
+}
+
+
 #endif
