@@ -45,10 +45,10 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  *                        `----------------------------------'  `----------------------------------'
  */
     [_QWERTY] = LAYOUT(
-      LCAG_T(KC_TAB),  KC_Q,   KC_W,   KC_E,   KC_R,   KC_T,                                              KC_Y,    KC_U,    KC_I,    KC_O,    KC_P,    KC_BSPC,
+      KC_TAB,          KC_Q,   KC_W,   KC_E,   KC_R,   KC_T,                                              KC_Y,    KC_U,    KC_I,    KC_O,    KC_P,    KC_BSPC,
       CTL_T(KC_ESC),   KC_A,   KC_S,   KC_D,   KC_F,   KC_G,                                              KC_H,    KC_J,    KC_K,    KC_L,    KC_SCLN, KC_ENT,
       KC_LSFT,         KC_Z,   KC_X,   KC_C,   KC_V,   KC_B,    KC_LSFT,   KC_LSFT,   KC_LSFT, KC_LSFT,   KC_N,    KC_M,    KC_COMM, KC_DOT,  KC_SLSH, MT(MOD_RSFT, KC_QUOT),
-                                   LGUI(KC_C), KC_LALT,KC_LGUI, MO(_LOWER),KC_SPC,    KC_SPC,  MO(_RAISE),KC_RGUI, KC_RALT, LGUI(KC_V)
+                                   LCAG_T(KC_NO), KC_LALT,KC_LGUI, MO(_LOWER),KC_SPC,    KC_SPC,  MO(_RAISE),KC_RGUI, KC_RALT, LGUI(KC_V)
     ),
 /*
  * Raise Layer: Symbols
@@ -400,7 +400,7 @@ void encoder_page_up_down(bool clockwise) {
 }
 
 
-void encoder_update_user(uint8_t index, bool clockwise) {
+bool encoder_update_user(uint8_t index, bool clockwise) {
     if (index == 0) {
 				switch (get_highest_layer(layer_state)) {
 						case _QWERTY:
@@ -433,6 +433,7 @@ void encoder_update_user(uint8_t index, bool clockwise) {
 								break;
 				}
     }
+    return true;
 }
 
 
