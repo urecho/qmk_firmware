@@ -6,7 +6,8 @@ WPM_ENABLE = yes
 MOUSEKEY_ENABLE = yes
 EXTRAKEY_ENABLE = yes
 LTO_ENABLE = yes
-PIMORONI_TRACKBALL_ENABLE = yes
+POINTING_DEVICE_ENABLE = yes
+POINTING_DEVICE_DRIVER = pimoroni_trackball
 
 TAP_DANCE_ENABLE = no
 STENO_ENABLE = no
@@ -26,4 +27,7 @@ LEADER_ENABLE = no
 BACKLIGHT_ENABLE = no
 
 EXTRAFLAGS += -flto
+
+SRC += rotary_encoder.c
+SRC += oled.c
 
