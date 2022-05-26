@@ -48,15 +48,14 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  * |--------+------+------+------+------+------+-------------.  ,-------------+------+------+------+------+------+--------|
  * | LShift |   Z  |   X  |   C  |   V  |   B  |LShift|LShift|  |LShift|LShift|   N  |   M  | ,  < | . >  | /  ? | RShift |
  * `----------------------+------+------+------+------+------|  |------+------+------+------+------+----------------------'
- *                        | LCAG | Alt  | GUI  | Lower| Space|  | Space| Raise| GUI  | Alt  |      |
- *                        |      |      |      |      |      |  |      |      |      |      |      |
+ *                        | LCAG | GUI  | Lower| Space|  Alt |  | Alt  | Enter| Raise| GUI  | LCAG |
  *                        `----------------------------------'  `----------------------------------'
  */
     [_QWERTY] = LAYOUT(
-      KC_TAB,          KC_Q,   KC_W,   KC_E,   KC_R,   KC_T,                                              KC_Y,    KC_U,    KC_I,    KC_O,    KC_P,      KC_BSPC,
-      CTL_T(KC_ESC),   HOME_A, HOME_S, HOME_D, HOME_F,   KC_G,                                            KC_H,    HOME_J,  HOME_K,  HOME_L,  HOME_SCLN, KC_ENT,
-      KC_LSFT,         KC_Z,   KC_X,   KC_C,   KC_V,   KC_B,    KC_LSFT,   KC_LSFT,   KC_LSFT, KC_LSFT,   KC_N,    KC_M,    KC_COMM, KC_DOT,  KC_SLSH, MT(MOD_RSFT, KC_QUOT),
-                                  LCAG(KC_NO), KC_LALT,KC_LGUI, MO(_LOWER),KC_SPC,    KC_SPC,  MO(_RAISE),KC_RGUI, KC_RALT, LCAG(KC_NO)
+      KC_TAB,          KC_Q,   KC_W,   KC_E,   KC_R,     KC_T,                                               KC_Y,    KC_U,      KC_I,    KC_O,    KC_P,      KC_BSPC,
+      CTL_T(KC_ESC),   HOME_A, HOME_S, HOME_D, HOME_F,   KC_G,                                               KC_H,    HOME_J,    HOME_K,  HOME_L,  HOME_SCLN, KC_ENT,
+      KC_LSFT,         KC_Z,   KC_X,   KC_C,   KC_V,     KC_B,       KC_LSFT,   KC_LSFT,   KC_LSFT, KC_LSFT, KC_N,    KC_M,      KC_COMM, KC_DOT,  KC_SLSH,   MT(MOD_RSFT, KC_QUOT),
+                                  LCAG(KC_NO), KC_LGUI,  MO(_LOWER), KC_SPC,    KC_LALT,   KC_RALT, KC_ENT,  MO(_RAISE),KC_RGUI, LCAG(KC_NO)
     ),
 /*
  * Raise Layer: Symbols
@@ -68,7 +67,6 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  * |--------+------+------+------+------+------+-------------.  ,-------------+------+------+------+------+------+--------|
  * |        |  %   |  ^   |  [   |  ]   |  ~   |      |      |  |      |      |   &  |  =   |  ,   |  .   |  / ? | - _    |
  * `----------------------+------+------+------+------+------|  |------+------+------+------+------+----------------------'
- *                        |      |      |      |  ;   |  =   |  |  =   |  ;   |      |      |      |
  *                        |      |      |      |      |      |  |      |      |      |      |      |
  *                        `----------------------------------'  `----------------------------------'
  */
@@ -88,7 +86,6 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  * |--------+------+------+------+------+------+-------------.  ,-------------+------+------+------+------+------+--------|
  * |        |      |      |      | Mute | VolDn|      |      |  |      |      | MLeft| Mdown| MUp  |MRight|      |        |
  * `----------------------+------+------+------+------+------|  |------+------+------+------+------+----------------------'
- *                        |      |      |      |      |      |  |      |      |      |      |      |
  *                        |      |      |      |      |      |  |      |      |      |      |      |
  *                        `----------------------------------'  `----------------------------------'
  */
@@ -147,10 +144,10 @@ layer_state_t layer_state_set_user(layer_state_t state) {
 
 
 void keyboard_post_init_user(void) {
-  uint8_t red   = 255;
-  uint8_t green = 0;
-  uint8_t blue  = 0;
-  uint8_t white = 0;
+  uint8_t red   = 0xFF;
+  uint8_t green = 0x00;
+  uint8_t blue  = 0x00;
+  uint8_t white = 0x00;
 
   pimoroni_trackball_set_rgbw(red, green, blue, white);
 }
