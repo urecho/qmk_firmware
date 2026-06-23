@@ -79,12 +79,21 @@ void encoder_page_up_down(bool clockwise) {
     }
 }
 
-// zoom in/out
+// zoom in/out (macOS: Cmd+= / Cmd+-)
 void encoder_zoom_in_out(bool clockwise) {
     if (clockwise) {
-        tap_code16(LCTL(KC_MINS));
+        tap_code16(LGUI(KC_EQL));   // Cmd+= (zoom in)
     } else {
-        tap_code16(LCTL(KC_PLUS));
+        tap_code16(LGUI(KC_MINS));  // Cmd+- (zoom out)
+    }
+}
+
+// macOS 창전환: Cmd+` (다음) / Cmd+Shift+` (이전)
+void encoder_window_switch(bool clockwise) {
+    if (clockwise) {
+        tap_code16(LGUI(KC_GRV));
+    } else {
+        tap_code16(LGUI(LSFT(KC_GRV)));
     }
 }
 
@@ -153,7 +162,7 @@ bool encoder_update_user(uint8_t index, bool clockwise) {
                 encoder_track_skip(clockwise);
                 break;
             case _NAV:
-                encoder_page_up_down(clockwise);
+                encoder_window_switch(clockwise);  // 옛 page_up_down → 창전환 (Cmd+`)
                 break;
             case _MOUSE:
                 encoder_mouse_horizontal(clockwise);

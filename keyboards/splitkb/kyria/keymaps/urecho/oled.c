@@ -15,7 +15,12 @@ enum layers {
 
 #ifdef OLED_ENABLE
 oled_rotation_t oled_init_user(oled_rotation_t rotation) {
-    return OLED_ROTATION_180;
+    // master = 180 (flip). slave = default rotation (0).
+    // kyria 의 좌/우 OLED 가 서로 반전 설치라 한쪽만 180 적용.
+    if (is_keyboard_master()) {
+        return OLED_ROTATION_180;
+    }
+    return rotation;
 }
 
 static void render_qmk_logo(void) {
@@ -67,15 +72,44 @@ static void render_status(void) {
     oled_write_P(led_usb_state.scroll_lock ? PSTR("SCRLCK ") : PSTR("       "), false);
 }
 
+// Slave 측 정보 표시 — master 의 layer/caps/mod state 가 split sync 로 전달됨.
+// (config.h 의 SPLIT_LAYER_STATE_ENABLE / SPLIT_MODS_ENABLE / SPLIT_WPM_ENABLE / SPLIT_LED_STATE_ENABLE)
+static void render_slave_status(void) {
+    oled_write_P(PSTR("Kyria\n\n"), false);
+
+    // 현재 layer
+    oled_write_P(PSTR("Layer:\n "), false);
+    switch (get_highest_layer(layer_state)) {
+        case _BASE:  oled_write_P(PSTR("Base\n"),  false); break;
+        case _MEDIA: oled_write_P(PSTR("Media\n"), false); break;
+        case _NAV:   oled_write_P(PSTR("Nav\n"),   false); break;
+        case _MOUSE: oled_write_P(PSTR("Mouse\n"), false); break;
+        case _SYM:   oled_write_P(PSTR("Sym\n"),   false); break;
+        case _NUM:   oled_write_P(PSTR("Num\n"),   false); break;
+        case _FUN:   oled_write_P(PSTR("Fun\n"),   false); break;
+        default:     oled_write_P(PSTR("?\n"),     false);
+    }
+
+    // Layer Lock / Caps Word 상태
+    if (is_layer_locked(get_highest_layer(layer_state))) {
+        oled_write_P(PSTR("[LOCK]\n"), false);
+    } else if (is_caps_word_on()) {
+        oled_write_P(PSTR("[CAPS]\n"), false);
+    } else {
+        oled_write_P(PSTR("\n"), false);
+    }
+
+    // WPM (하단)
+    oled_set_cursor(0, 7);
+    sprintf(wpm_str, "WPM:%3d", get_current_wpm());
+    oled_write(wpm_str, false);
+}
+
 bool oled_task_user(void) {
     if (is_keyboard_master()) {
-        render_status(); // Renders the current keyboard state (layer, lock, caps, scroll, etc)
+        render_status();
     } else {
-        // Static QMK logo on slave side (animation removed to fit AVR flash budget)
-        render_qmk_logo();
-        oled_set_cursor(0,6);
-        sprintf(wpm_str, "       WPM: %03d", get_current_wpm());
-        oled_write(wpm_str, false);
+        render_slave_status();
     }
     return false;
 }

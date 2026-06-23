@@ -31,6 +31,34 @@
 // macOS screenshot: Ctrl+Cmd+Shift+4 = 드래그로 영역 선택 + 클립보드 저장
 #define SS_DRAG LCTL(LGUI(LSFT(KC_4)))
 
+// Custom keycode: tap = Layer Lock, hold = LCAG (Hyper).
+// QK_LLCK 가 basic keycode 범위 밖이라 MT() 매크로 안 됨 → process_record_user 에서 직접 처리.
+enum custom_keycodes {
+    LCAG_LCK = SAFE_RANGE,
+};
+
+bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+    static uint16_t lcag_timer = 0;
+    if (keycode == LCAG_LCK) {
+        if (record->event.pressed) {
+            lcag_timer = timer_read();
+            register_mods(MOD_BIT(KC_LCTL) | MOD_BIT(KC_LALT) | MOD_BIT(KC_LGUI));
+        } else {
+            unregister_mods(MOD_BIT(KC_LCTL) | MOD_BIT(KC_LALT) | MOD_BIT(KC_LGUI));
+            if (timer_elapsed(lcag_timer) < TAPPING_TERM) {
+                // 짧게 tap → 현재 활성 layer 잠금/해제 토글
+                // tap_code16(QK_LLCK) 가 흐름상 호출 안 됐던 듯, layer_lock_invert 직접 호출.
+                uint8_t cur = get_highest_layer(layer_state);
+                if (cur != 0) {  // 0 = _BASE — base 는 잠글 layer 없음
+                    layer_lock_invert(cur);
+                }
+            }
+        }
+        return false;
+    }
+    return true;
+}
+
 char wpm_str[10];
 
 // Miryoku-style layer enum. Thumb cluster activates each layer via LT().
@@ -66,7 +94,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
       KC_GRV,         KC_Q,   KC_W,   KC_E,   KC_R,     KC_T,                                                   KC_Y,    KC_U,         KC_I,    KC_O,    KC_P,      KC_BSLS,
       KC_ESC,          HOME_A, HOME_S, HOME_D, HOME_F,   KC_G,                                                   KC_H,    HOME_J,       HOME_K,  HOME_L,  HOME_SCLN, KC_QUOT,
       KC_LSFT,         KC_Z,   KC_X,   KC_C,   KC_V,     KC_B,            KC_LSFT, KC_LSFT,   KC_LSFT, KC_LSFT,  KC_N,    KC_M,         KC_COMM, KC_DOT,  KC_SLSH,   KC_RSFT,
-                                  XXXXXXX, LT(_MEDIA,KC_ESC), LT(_NAV,KC_SPC), LT(_MOUSE,KC_TAB), LCAG(KC_NO),   LCAG(KC_NO), LT(_SYM,KC_ENT), LT(_NUM,KC_BSPC), LT(_FUN,KC_DEL), XXXXXXX
+                                  XXXXXXX, LT(_MEDIA,KC_ESC), LT(_NAV,KC_SPC), LT(_MOUSE,KC_TAB), LCAG_LCK,   LCAG_LCK, LT(_SYM,KC_ENT), LT(_NUM,KC_BSPC), LT(_FUN,KC_DEL), XXXXXXX
     ),
 
 /*

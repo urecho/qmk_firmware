@@ -50,3 +50,13 @@
 #define ENCODER_RESOLUTION 2
 #define POINTING_DEVICE_ROTATION_180
 
+// Split sync — slave OLED 에서 master 의 layer/mod/wpm 표시 가능하도록
+#define SPLIT_LAYER_STATE_ENABLE
+#define SPLIT_MODS_ENABLE
+#define SPLIT_WPM_ENABLE
+#define SPLIT_LED_STATE_ENABLE
+
+// kyria upstream 의 sync.oled = true 를 비활성화.
+// master (왼쪽) 에 OLED 없으니 mirror 가 slave 의 빈 화면을 강제. slave 가 자기 render 하도록.
+#undef SPLIT_OLED_ENABLE
+

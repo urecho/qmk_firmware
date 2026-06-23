@@ -8,6 +8,7 @@ LTO_ENABLE = yes
 POINTING_DEVICE_ENABLE = yes
 POINTING_DEVICE_DRIVER = pimoroni_trackball
 CAPS_WORD_ENABLE = yes     # _NAV 의 CW_TOGG 동작
+LAYER_LOCK_ENABLE = yes    # QK_LLCK (LCAG_LCK 의 tap 동작)
 
 TAP_DANCE_ENABLE = no
 STENO_ENABLE = no
