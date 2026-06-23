@@ -4,10 +4,13 @@
 extern char wpm_str[10];
 
 enum layers {
-    _QWERTY = 0,
-    _RAISE,
-    _LOWER,
-    _ADJUST
+    _BASE = 0,
+    _MEDIA,
+    _NAV,
+    _MOUSE,
+    _SYM,
+    _NUM,
+    _FUN
 };
 
 #ifdef OLED_ENABLE
@@ -32,17 +35,26 @@ static void render_status(void) {
     // Host Keyboard Layer Status
     oled_write_P(PSTR("Layer: "), false);
     switch (get_highest_layer(layer_state)) {
-        case _QWERTY:
-            oled_write_P(PSTR("Default\n"), false);
+        case _BASE:
+            oled_write_P(PSTR("Base\n"), false);
             break;
-        case _LOWER:
-            oled_write_P(PSTR("Lower\n"), false);
+        case _MEDIA:
+            oled_write_P(PSTR("Media\n"), false);
             break;
-        case _RAISE:
-            oled_write_P(PSTR("Raise\n"), false);
+        case _NAV:
+            oled_write_P(PSTR("Nav\n"), false);
             break;
-        case _ADJUST:
-            oled_write_P(PSTR("Adjust\n"), false);
+        case _MOUSE:
+            oled_write_P(PSTR("Mouse\n"), false);
+            break;
+        case _SYM:
+            oled_write_P(PSTR("Sym\n"), false);
+            break;
+        case _NUM:
+            oled_write_P(PSTR("Num\n"), false);
+            break;
+        case _FUN:
+            oled_write_P(PSTR("Fun\n"), false);
             break;
         default:
             oled_write_P(PSTR("Undefined\n"), false);

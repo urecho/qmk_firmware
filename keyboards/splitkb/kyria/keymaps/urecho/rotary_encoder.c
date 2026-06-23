@@ -2,10 +2,13 @@
 #include QMK_KEYBOARD_H
 
 enum layers {
-    _QWERTY = 0,
-    _RAISE,
-    _LOWER,
-    _ADJUST
+    _BASE = 0,
+    _MEDIA,
+    _NAV,
+    _MOUSE,
+    _SYM,
+    _NUM,
+    _FUN
 };
 
 #ifdef ENCODER_ENABLE
@@ -107,42 +110,57 @@ void encoder_mouse_horizontal(bool clockwise) {
     }
 }
 
+// track prev/next (media)
+void encoder_track_skip(bool clockwise) {
+    if (clockwise) {
+        tap_code(KC_MNXT);
+    } else {
+        tap_code(KC_MPRV);
+    }
+}
 
 
 bool encoder_update_user(uint8_t index, bool clockwise) {
+    // 의미 정합성 매핑:
+    //   BASE  → mouse scroll / zoom         (그대로)
+    //   MEDIA → volume       / track skip   (미디어 layer 본연)
+    //   NAV   → alt-tab      / page up-down (navigation)
+    //   MOUSE → mouse vert   / mouse horiz  (마우스 layer 본연)
     if (index == 0) {
-				switch (get_highest_layer(layer_state)) {
-						case _QWERTY:
-								encoder_mouse_scroll(clockwise);
-								break;
-						case _LOWER:
-								break;
-						case _RAISE:
-								encoder_volume_control(clockwise);
-								break;
-						case _ADJUST:
+        switch (get_highest_layer(layer_state)) {
+            case _BASE:
+                encoder_mouse_scroll(clockwise);
+                break;
+            case _MEDIA:
+                encoder_volume_control(clockwise);
+                break;
+            case _NAV:
+                encoder_alt_tab(clockwise);
+                break;
+            case _MOUSE:
                 encoder_mouse_vertical(clockwise);
-								break;
-						default:
-								break;
-				}
+                break;
+            default:
+                break;
+        }
     }
     else if (index == 1) {
-				switch (get_highest_layer(layer_state)) {
-						case _QWERTY:
-						    encoder_zoom_in_out(clockwise);
-								break;
-						case _LOWER:
-                encoder_alt_tab(clockwise);
-								break;
-						case _RAISE:
-								break;
-						case _ADJUST:
+        switch (get_highest_layer(layer_state)) {
+            case _BASE:
+                encoder_zoom_in_out(clockwise);
+                break;
+            case _MEDIA:
+                encoder_track_skip(clockwise);
+                break;
+            case _NAV:
+                encoder_page_up_down(clockwise);
+                break;
+            case _MOUSE:
                 encoder_mouse_horizontal(clockwise);
-								break;
-						default:
-								break;
-				}
+                break;
+            default:
+                break;
+        }
     }
     return false;
 }
