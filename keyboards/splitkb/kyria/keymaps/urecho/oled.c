@@ -65,11 +65,9 @@ static void render_status(void) {
             oled_write_P(PSTR("Undefined\n"), false);
     }
 
-    // Host Keyboard LED Status
+    // Host Keyboard LED Status (caps lock 만 표시 — flash 절약 위해 num/scroll 생략)
     led_t led_usb_state = host_keyboard_led_state();
-    oled_write_P(led_usb_state.num_lock    ? PSTR("NUMLCK ") : PSTR("       "), false);
-    oled_write_P(led_usb_state.caps_lock   ? PSTR("CAPLCK ") : PSTR("       "), false);
-    oled_write_P(led_usb_state.scroll_lock ? PSTR("SCRLCK ") : PSTR("       "), false);
+    oled_write_P(led_usb_state.caps_lock ? PSTR("CAPLCK ") : PSTR("       "), false);
 }
 
 // Slave 측 정보 표시 — master 의 layer/caps/mod state 가 split sync 로 전달됨.
