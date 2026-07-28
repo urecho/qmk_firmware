@@ -44,18 +44,6 @@ bool get_hold_on_other_key_press(uint16_t keycode, keyrecord_t *record) {
     return false;
 }
 
-// Chordal Hold 예외: 엄지 layer-tap 은 손 상관없이 hold 허용.
-// Chordal Hold 는 "같은 손 조합 = tap" 인데, SYM(우 엄지) + 우측 심볼(-=[]{}() 등)이
-// 같은 손이라 tap(ENTER)으로 새던 문제 → layer-tap 은 예외로 두고 (HOOKP 가 hold 확정),
-// home row mod 만 기본 손 기반 판정 유지.
-bool get_chordal_hold(uint16_t tap_hold_keycode, keyrecord_t *tap_hold_record,
-                      uint16_t other_keycode, keyrecord_t *other_record) {
-    if (IS_QK_LAYER_TAP(tap_hold_keycode)) {
-        return true;
-    }
-    return get_chordal_hold_default(tap_hold_record, other_record);
-}
-
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 /*
  * BASE: QWERTY + home row mods + miryoku thumb (3+3)
