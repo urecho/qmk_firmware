@@ -1,7 +1,6 @@
 #include QMK_KEYBOARD_H
 #include <stdio.h>
 
-extern char wpm_str[10];
 
 enum layers {
     _BASE = 0,
@@ -99,8 +98,8 @@ static void render_slave_status(void) {
 
     // WPM (하단)
     oled_set_cursor(0, 7);
-    sprintf(wpm_str, "WPM:%3d", get_current_wpm());
-    oled_write(wpm_str, false);
+    oled_write_P(PSTR("WPM:"), false);
+    oled_write(get_u8_str(get_current_wpm(), ' '), false);
 }
 
 bool oled_task_user(void) {

@@ -14,7 +14,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include QMK_KEYBOARD_H
-#include <stdio.h>
 
 // Left-hand home row mods
 #define HOME_A LCTL_T(KC_A)
@@ -69,7 +68,26 @@ bool get_hold_on_other_key_press(uint16_t keycode, keyrecord_t *record) {
     return false;
 }
 
-char wpm_str[10];
+// Chordal Hold 예외.
+// 엄지 layer-tap 은 손 판정 없이 hold 를 허용한다 — SYM/NUM/FUN 의 심볼이 레이어를 무는
+// 엄지와 같은 손에 있어도 레이어로 동작해야 한다.
+// 왼손 Cmd(HOME_D)는 같은 손 단축키 조합에 한해 hold 를 허용한다. 목록에 없는 키
+// (스페이스 엄지 등)는 같은 손 규칙을 그대로 따라 tap 이 된다.
+bool get_chordal_hold(uint16_t tap_hold_keycode, keyrecord_t *tap_hold_record,
+                      uint16_t other_keycode, keyrecord_t *other_record) {
+    if (IS_QK_LAYER_TAP(tap_hold_keycode)) {
+        return true;
+    }
+    if (tap_hold_keycode == HOME_D) {
+        switch (other_keycode) {
+            case KC_Q: case KC_W: case KC_R: case KC_T: case KC_G:
+            case KC_Z: case KC_X: case KC_C: case KC_V:
+            case HOME_A: case HOME_S: case HOME_F:
+                return true;
+        }
+    }
+    return get_chordal_hold_default(tap_hold_record, other_record);
+}
 
 // Miryoku-style layer enum. Thumb cluster activates each layer via LT().
 // _MEDIA / _NAV / _MOUSE → left thumb (ESC / SPC / TAB)
@@ -135,7 +153,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
       _______, _______, _______, _______, _______, _______,                                     KC_UNDO, KC_CUT,  KC_COPY, KC_PASTE,KC_AGAIN,_______,
       _______, KC_LCTL, KC_LALT, KC_LGUI, KC_LSFT, _______,                                     KC_LEFT, KC_DOWN, KC_UP,   KC_RGHT, CW_TOGG, SS_DRAG,
       _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, KC_INS,  KC_HOME, KC_PGDN, KC_PGUP, KC_END,  _______,
-                                 _______, _______, _______, _______, _______, KC_ENT,  KC_BSPC, KC_DEL,  _______, _______
+                                 _______, _______, _______, _______, _______, _______, KC_ENT,  KC_BSPC, KC_DEL,  _______
     ),
 
 /*
@@ -155,66 +173,71 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
       _______, _______, _______, _______, _______, _______,                                     KC_UNDO, KC_CUT,  KC_COPY, KC_PASTE,KC_AGAIN,_______,
       _______, KC_LCTL, KC_LALT, KC_LGUI, KC_LSFT, _______,                                     MS_LEFT, MS_DOWN, MS_UP,   MS_RGHT, _______, _______,
       _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, MS_WHLL, MS_WHLD, MS_WHLU, MS_WHLR, _______, _______,
-                                 _______, _______, _______, _______, _______, MS_BTN2, MS_BTN1, MS_BTN3, _______, _______
+                                 _______, _______, _______, _______, _______, _______, MS_BTN2, MS_BTN1, MS_BTN3, _______
     ),
 
 /*
- * SYM Layer (right thumb inner = ENT hold): 심볼 + 괄호.
- * 좌측 행 2 의 HOME/END 와 행 3 의 PGUP/PGDN 은 _NAV 로 이동했음.
+ * SYM Layer (right thumb inner = ENT hold): 심볼 + 괄호. 양쪽 hand 에 전개.
+ * 좌측 자리 = _NUM 의 숫자 자리 — 각 키는 그 숫자의 shift 문자.
+ * 우측 행 1 외곽(base 의 \ 자리)은 파이프.
+ *
+ *  좌측 (숫자 자리 대응)                    우측
+ *  ,----+----+----+----+----+----.         ,----+----+----+----+----+----.
+ *  | ~  | !  | @  | #  | $  | %  |         | ^  | &  | *  | (  | )  | |  |
+ *  +----+----+----+----+----+----+         +----+----+----+----+----+----+
+ *  |    | $  | %  | ^  | &  | *  |         |    | -  | =  | [  | ]  |    |
+ *  +----+----+----+----+----+----+         +----+----+----+----+----+----+
+ *  |    | &  | *  | (  | )  | >  |         |    | _  | +  | {  | }  |    |
+ *  `----+----+----+----+----+----'         `----+----+----+----+----+----'
+ *  좌 thumb: ESC SPC TAB (bare, SYM+MEDIA/NAV/MOUSE 동시 활성화 회피)
  */
     [_SYM] = LAYOUT(
-      KC_TILD, KC_EXLM, KC_AT,   KC_HASH, KC_DLR,  KC_PERC,                                     KC_CIRC, KC_AMPR, KC_ASTR, KC_LPRN, KC_RPRN, _______,
-      _______, _______, _______, XXXXXXX, XXXXXXX, XXXXXXX,                                     XXXXXXX, KC_MINS, KC_EQL,  KC_LBRC, KC_RBRC, _______,
-      _______, _______, _______, XXXXXXX, XXXXXXX, XXXXXXX, _______, _______, _______, _______, XXXXXXX, KC_UNDS, KC_PLUS, KC_LCBR, KC_RCBR, _______,
-                                 _______, _______, _______, _______, _______, _______, _______, _______, _______, _______
-    ),
-
-/*
- * NUM Layer (right thumb middle = BSPC hold): top row 자체가 numpad 위행 역할 + 그 아래 4-6 / 1-3 덧붙임
- *
- *  좌측 (top row 1-5)                      우측 (top row 6-0 = numpad 7-9 자리 겸용)
- *  ,----+----+----+----+----+----.         ,----+----+----+----+----+----.
- *  | `  | 1  | 2  | 3  | 4  | 5  |         | 6  | 7  | 8  | 9  | 0  |    |   행 1: top row 우측 = numpad top (7/8/9 동일 자리)
- *  +----+----+----+----+----+----+         +----+----+----+----+----+----+
- *  |    |    |    |    |    |    |         |    | 4  | 5  | 6  |    |    |   행 2: numpad mid (J/K/L)
- *  +----+----+----+----+----+----+         +----+----+----+----+----+----+
- *  |    |    |    |    |    |    |         |    | 1  | 2  | 3  |    |    |   행 3: numpad bottom (M/,/.)
- *  `----+----+----+----+----+----+         +----+----+----+----+----+----'
- *  좌 thumb: . 0 -  (numpad 보조)
- *
- *  사용자 의도 시각화:
- *    12345 67890   ← 행 1 (좌 top row + 우 top row = numpad 위행 겸용)
- *           456    ← 행 2
- *           123    ← 행 3
- *
- *  좌측 hand 행 2/3 은 _______ — base 의 home row mod 그대로 통과 (NUM 활성 중 mod 사용 가능).
- */
-    [_NUM] = LAYOUT(
-      KC_GRV,  KC_1,    KC_2,    KC_3,    KC_4,    KC_5,                                        KC_6,    KC_7,    KC_8,    KC_9,    KC_0,    _______,
-      _______, KC_4,    KC_5,    KC_6,    _______, _______,                                     _______, KC_4,    KC_5,    KC_6,    _______, _______,
-      _______, KC_7,    KC_8,    KC_9,    KC_0,    _______, _______, _______, _______, _______, _______, KC_1,    KC_2,    KC_3,    KC_DOT,  _______,
+      KC_TILD, KC_EXLM, KC_AT,   KC_HASH, KC_DLR,  KC_PERC,                                     KC_CIRC, KC_AMPR, KC_ASTR, KC_LPRN, KC_RPRN, KC_PIPE,
+      _______, KC_DLR,  KC_PERC, KC_CIRC, KC_AMPR, KC_ASTR,                                     XXXXXXX, KC_MINS, KC_EQL,  KC_LBRC, KC_RBRC, _______,
+      _______, KC_AMPR, KC_ASTR, KC_LPRN, KC_RPRN, KC_GT,   _______, _______, _______, _______, XXXXXXX, KC_UNDS, KC_PLUS, KC_LCBR, KC_RCBR, _______,
                                  _______, KC_ESC,  KC_SPC,  KC_TAB,  _______, _______, _______, _______, _______, _______
     ),
 
 /*
- * FUN Layer (right thumb outer = DEL hold): F-키 위치 = NUM 의 숫자 위치 (사용자 머슬메모리 원칙)
+ * NUM Layer (right thumb middle = BSPC hold): 양쪽 hand 에 숫자 전개.
+ * 행 1 = 일반 키보드 숫자행. 그 아래는 양쪽 모두 numpad 격자.
  *
- *  좌측 (top row 자리 = F1-F5)             우측 (top row = F6-F10, 그 아래 = numpad 식 F-key)
+ *  좌측                                    우측
  *  ,----+----+----+----+----+----.         ,----+----+----+----+----+----.
- *  |    | F1 | F2 | F3 | F4 | F5 |         | F6 | F7 | F8 | F9 |F10 |F11 |   행 1: top row 자리 = F1~F10
+ *  | `  | 1  | 2  | 3  | 4  | 5  |         | 6  | 7  | 8  | 9  | 0  |    |   행 1: 숫자행 1-0
  *  +----+----+----+----+----+----+         +----+----+----+----+----+----+
- *  |    | F11| F12|    |    |    |         |    | F4 | F5 | F6 |    |F12 |   행 2: numpad mid 자리 = F4-F6
+ *  |    | 4  | 5  | 6  | 7  | 8  |         |    | 4  | 5  | 6  |    |    |   행 2: numpad mid
  *  +----+----+----+----+----+----+         +----+----+----+----+----+----+
- *  |    |    |    |    |    |    |         |    | F1 | F2 | F3 |    |    |   행 3: numpad bottom 자리 = F1-F3
- *  `----+----+----+----+----+----+         +----+----+----+----+----+----'
- *  좌 thumb: ESC SPC TAB (bare, FUN+MEDIA/NAV/MOUSE 동시 활성화 회피)
+ *  |    | 7  | 8  | 9  | 0  | .  |         |    | 1  | 2  | 3  | .  |    |   행 3: 좌 7-0, 우 1-3
+ *  `----+----+----+----+----+----'         `----+----+----+----+----+----'
+ *  좌 thumb: ESC SPC TAB (bare, NUM+MEDIA/NAV/MOUSE 동시 활성화 회피)
+ */
+    [_NUM] = LAYOUT(
+      KC_GRV,  KC_1,    KC_2,    KC_3,    KC_4,    KC_5,                                        KC_6,    KC_7,    KC_8,    KC_9,    KC_0,    _______,
+      _______, KC_4,    KC_5,    KC_6,    KC_7,    KC_8,                                        _______, KC_4,    KC_5,    KC_6,    _______, _______,
+      _______, KC_7,    KC_8,    KC_9,    KC_0,    KC_DOT,  _______, _______, _______, _______, _______, KC_1,    KC_2,    KC_3,    KC_DOT,  _______,
+                                 _______, KC_ESC,  KC_SPC,  KC_TAB,  _______, _______, _______, _______, _______, _______
+    ),
+
+/*
+ * FUN Layer (right thumb outer = DEL hold): F-키. 양쪽 hand 에 전개.
+ * 좌측 자리 = _NUM 의 숫자 자리 — 숫자 N 자리에 F<N> (0 은 F10).
+ * F11/F12 는 양쪽 외곽 열의 행 2/행 3.
  *
- *  F11/F12 는 별도 자리 안 둠 (사용자가 numpad 격자 외 안 둘 의도로 추정).
+ *  좌측 (숫자 자리 대응)                    우측
+ *  ,----+----+----+----+----+----.         ,----+----+----+----+----+----.
+ *  |    | F1 | F2 | F3 | F4 | F5 |         | F6 | F7 | F8 | F9 |F10 |    |
+ *  +----+----+----+----+----+----+         +----+----+----+----+----+----+
+ *  |F11 | F4 | F5 | F6 | F7 | F8 |         |    | F4 | F5 | F6 |    |F11 |
+ *  +----+----+----+----+----+----+         +----+----+----+----+----+----+
+ *  |F12 | F7 | F8 | F9 |F10 |    |         |    | F1 | F2 | F3 |    |F12 |
+ *  `----+----+----+----+----+----'         `----+----+----+----+----+----'
+ *  좌 thumb: ESC SPC TAB (bare, FUN+MEDIA/NAV/MOUSE 동시 활성화 회피)
  */
     [_FUN] = LAYOUT(
-      _______, KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_F5,                                       KC_F6,   KC_F7,   KC_F8,   KC_F9,   KC_F10,  KC_F11,
-      _______, KC_F11,  KC_F12,  _______, _______, _______,                                     _______, KC_F4,   KC_F5,   KC_F6,   _______, KC_F12,
-      _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, KC_F1,   KC_F2,   KC_F3,   _______, _______,
+      _______, KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_F5,                                       KC_F6,   KC_F7,   KC_F8,   KC_F9,   KC_F10,  _______,
+      KC_F11,  KC_F4,   KC_F5,   KC_F6,   KC_F7,   KC_F8,                                       _______, KC_F4,   KC_F5,   KC_F6,   _______, KC_F11,
+      KC_F12,  KC_F7,   KC_F8,   KC_F9,   KC_F10,  _______, _______, _______, _______, _______, _______, KC_F1,   KC_F2,   KC_F3,   _______, KC_F12,
                                  _______, KC_ESC,  KC_SPC,  KC_TAB,  _______, _______, _______, _______, _______, _______
     ),
 };
